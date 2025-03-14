@@ -1,7 +1,6 @@
 import requests
 import unittest
 import json
-from app import app
 
 class TestStringMethods(unittest.TestCase):
 
@@ -50,7 +49,7 @@ class TestStringMethods(unittest.TestCase):
         r_lista_depois = requests.get('http://localhost:5000/turmas')
         self.assertEqual(len(r_lista_depois.json()),0)
 
-    def teste_003_turma_deletar_id(self):
+    def teste_003_turma_deletar(self):
         #apago tudo
         r_reset = requests.post('http://localhost:5000/reseta')
         self.assertEqual(r_reset.status_code,200)
@@ -158,6 +157,13 @@ class TestStringMethods(unittest.TestCase):
         r = requests.put('http://localhost:5000/turmas/1', json={'nome': 'ciencia da computação', 'id': 10, 'professor': 753})
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.json().get("erro"), "O professor deve ser uma string")
+
+    def test_010_id_inexistente_no_delete(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+        r = requests.delete('http://localhost:5000/turmas/15')
+        self.assertIn(r.status_code,[400,404])
+        self.assertEqual(r.json()['erro'],'Turma não encontrada')
 
 if __name__ == '__main__':
     unittest.main()
