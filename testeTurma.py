@@ -86,31 +86,39 @@ class TestStringMethods(unittest.TestCase):
             pass
         else:
             self.fail("voce parece ter deletado a turma errada!")
+        
 
     def teste_004_turmas_atualizar(self):
         r_reset = requests.post('http://localhost:5000/reseta')
         self.assertEqual(r_reset.status_code,200)
+        # Cria uma turma para ser atualizada
+        requests.post('http://localhost:5000/turmas', json={'nome': 'ads', 'id': 28, 'professor': 'caio'})
 
-        requests.post('http://localhost:5000/turmas',json={'nome':'ads','id':28, 'professor':'caio'})
+        # Verifica se a turma foi criada corretamente
         r_antes = requests.get('http://localhost:5000/turmas/28')
-        self.assertEqual(r_antes.json()['nome'],'ads')
-        requests.put('http://localhost:5000/turmas/28', json={'nome':'ads manha'})
+        self.assertEqual(r_antes.json()['nome'], 'ads')
+
+        # Atualiza a turma usando PUT
+        requests.put('http://localhost:5000/turmas/28', json={'nome': 'ads manha', 'id': 28, 'professor': 'caio'})
+
+        # Verifica se a turma foi atualizada corretamente
         r_depois = requests.get('http://localhost:5000/turmas/28')
-        self.assertEqual(r_depois.json()['nome'],'ads manha')
-        self.assertEqual(r_depois.json()['id'],28)
+        self.assertEqual(r_depois.json()['nome'], 'ads manha')
+        self.assertEqual(r_depois.json()['id'], 28)
+        self.assertEqual(r_depois.json()['professor'], 'caio')
 
     def teste_005_atualizar_id_inexistente(self):
         r_reset = requests.post('http://localhost:5000/reseta')
         self.assertEqual(r_reset.status_code,200)
 
-        r = requests.put('http://localhost:5000/turmas/15',json={'nome':'eng. software','id':15, 'professor': 'joão'})
+        r = requests.put('http://localhost:5000/turmas/15', json={'nome': 'eng. software'})
 
-        self.assertIn(r.status_code,[400,404])
-        self.assertEqual(r.json()['erro'],'Turma não encontrada')
+        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.json()['erro'], 'Turma não encontrada')
 
     def teste_006_criar_faltando_parametro(self):
         r_reset = requests.post('http://localhost:5000/reseta')
-        self.assertEqual(r_reset.status_code, 200)
+        self.assertEqual(r_reset.status_code,200)
 
         r_criacao = requests.post('http://localhost:5000/turmas', json={"id": 28})
         self.assertIn(r_criacao.status_code, [400, 422])
@@ -120,8 +128,8 @@ class TestStringMethods(unittest.TestCase):
 
     def teste_007_criar_com_id_existente(self):
         r_reset = requests.post('http://localhost:5000/reseta')
-        self.assertEqual(r_reset.status_code, 200)
-        r = requests.post('http://localhost:5000/turmas', json={'nome': 'banco de dados', 'id': 7, 'professor': 'joão'})
+        self.assertEqual(r_reset.status_code,200)
+        r = requests.post('http://localhost:5000/turmas', json={'nome': 'banco de dados', 'id': 7, 'professor': 'vinicius'})
         self.assertEqual(r.status_code, 200)
         r = requests.post('http://localhost:5000/turmas', json={'nome': 'ciencia da computação', 'id': 7, 'professor': 'caio'})
         self.assertEqual(r.status_code, 400)
@@ -130,10 +138,12 @@ class TestStringMethods(unittest.TestCase):
 
 
     def teste_008_criar_com_tipos_invalidos(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
         # Teste 1: "id" não é um número inteiro
         r = requests.post('http://localhost:5000/turmas', json={'nome': 'ciencia da computação', 'id': 'g', 'professor': 'felipe'})
         self.assertEqual(r.status_code, 400)
-        self.assertEqual(r.json().get("erro"), "O id deve ser um número inteiro")
+        self.assertEqual(r.json().get("erro"), "O id deve ser um número inteiro positivo")
 
         # Teste 2: "nome" não é uma string
         r = requests.post('http://localhost:5000/turmas', json={'nome': 987, 'id': 7, 'professor': 'felipe'})
@@ -146,17 +156,14 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(r.json().get("erro"), "O professor deve ser uma string")
 
     def teste_009_atualizar_com_tipos_invalidos(self):
-        r = requests.put('http://localhost:5000/turmas/1', json={'nome': 'ciencia da computação', 'id': 'g', 'professor': 'felipe'})
-        self.assertEqual(r.status_code, 400)
-        self.assertEqual(r.json().get("erro"), "O id deve ser um número inteiro")
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
 
-        r = requests.put('http://localhost:5000/turmas/1', json={'nome': 987, 'id': 7, 'professor': 'felipe'})
-        self.assertEqual(r.status_code, 400)
-        self.assertEqual(r.json().get("erro"), "O nome deve ser uma string")
+        requests.post('http://localhost:5000/turmas', json={'nome': 'ads', 'id': 5, 'professor': 'caio'})
 
-        r = requests.put('http://localhost:5000/turmas/1', json={'nome': 'ciencia da computação', 'id': 10, 'professor': 753})
+        # Atualizar com tipos inválidos
+        r = requests.put('http://localhost:5000/turmas/5', json={'nome': 123, 'id': 'abc', 'professor': True})
         self.assertEqual(r.status_code, 400)
-        self.assertEqual(r.json().get("erro"), "O professor deve ser uma string")
 
     def test_010_id_inexistente_no_delete(self):
         r_reset = requests.post('http://localhost:5000/reseta')
@@ -164,6 +171,45 @@ class TestStringMethods(unittest.TestCase):
         r = requests.delete('http://localhost:5000/turmas/15')
         self.assertIn(r.status_code,[400,404])
         self.assertEqual(r.json()['erro'],'Turma não encontrada')
+
+    def test_011_buscar_turma_id_inexistente(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+        
+        r = requests.get('http://localhost:5000/turmas/99')
+        self.assertIn(r.status_code, [400, 404])
+        self.assertEqual(r.json()['erro'], 'Turma não encontrada')
+
+    def test_012_atualizar_parcialmente(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        requests.post('http://localhost:5000/turmas', json={'nome': 'ads', 'id': 5, 'professor': 'caio'})
+        
+        # atualizar professor
+        r = requests.patch('http://localhost:5000/turmas/5', json={'professor': 'vinicius'})
+        self.assertEqual(r.status_code, 200)
+
+        # verificar se mudou o prof
+        r_turma = requests.get('http://localhost:5000/turmas/5')
+        turma = r_turma.json()
+        self.assertEqual(turma['nome'], 'ads')
+        self.assertEqual(turma['id'], 5)
+        self.assertEqual(turma['professor'], 'vinicius')
+
+    def test_013_criar_turma_sem_json(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code, 200)
+        r = requests.post('http://localhost:5000/turmas', data="")
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.json().get('erro'), 'JSON inválido ou não fornecido')
+
+    def test_014_criar_turma_com_id_negativo(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code, 200)
+        r = requests.post('http://localhost:5000/turmas', json={'nome': 'ads', 'id': -5, 'professor': 'caio'})
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.json().get('erro'), 'O id deve ser um número inteiro positivo')
 
 if __name__ == '__main__':
     unittest.main()

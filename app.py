@@ -1,7 +1,19 @@
 from flask import Flask, jsonify, request
-import dici
 
 app = Flask(__name__)
+
+dici = {
+    "alunos" : [
+        {"id": 1, "nome": "bruna"}
+        ],
+    "professores" : [
+        {'id': 1, 'nome':'caio'}
+    ],
+    "turmas" : [
+        {'nome':'si','id':1, 'professor':"caio"},
+        {'nome':'ads','id':28, 'professor':'caio'}
+    ]
+}
 
 # ------- TURMA -------
 
@@ -9,7 +21,7 @@ app = Flask(__name__)
 
 @app.route('/reseta', methods=['POST'])
 def reseta():
-    dici.dici["turmas"] = []
+    dici["turmas"] = []
     return jsonify({"message": "Banco de dados resetado"}), 200
 
 
@@ -18,14 +30,14 @@ def reseta():
 # LISTAR TODAS AS TURMAS
 @app.route('/turmas', methods=['GET'])
 def getTurma():
-    dados = dici.dici["turmas"]
+    dados = dici["turmas"]
     return jsonify(dados)
 
 
 # LISTAR TURMA POR ID
 @app.route('/turmas/<int:idTurma>', methods=['GET'])
 def getTurmaById(idTurma):
-    for turma in dici.dici["turmas"]:
+    for turma in dici["turmas"]:
         if turma["id"] == idTurma:
             return jsonify(turma), 200
     return jsonify({"erro": "Turma não encontrada"}), 404
@@ -53,20 +65,20 @@ def createTurma():
         return jsonify({'erro': 'O professor deve ser uma string'}), 400
 
     #verifica a id
-    for turma in dici.dici["turmas"]:
+    for turma in dici["turmas"]:
         if turma['id'] == dados['id']:
             return jsonify({'erro': 'id ja utilizada'}), 400
         
-    dici.dici['turmas'].append(dados)
+    dici['turmas'].append(dados)
     return jsonify(dados,{'mensagem': 'Turma criada com sucesso'}), 200
 
 
 # DELETAR TURMA POR ID 
 @app.route('/turmas/<int:idTurma>', methods=['DELETE'])
 def deleteTurma(idTurma):
-    for turma in dici.dici["turmas"]:
+    for turma in dici["turmas"]:
         if turma["id"] == idTurma:
-            dici.dici["turmas"].remove(turma)  
+            dici["turmas"].remove(turma)  
             return jsonify({"mensagem": "Turma deletada com sucesso", "turmas": turma}), 200
     
     # Se não encontrar, retorna erro 404
@@ -74,33 +86,48 @@ def deleteTurma(idTurma):
 
 
 # ATUALIZAR TURMA POR ID
-@app.route('/turmas/<int:idTurma>', methods=['PUT', 'PATCH'])
+@app.route('/turmas/<int:idTurma>', methods=['PUT'])
 def atualizarTurma(idTurma):
     dados = request.json
+    print(f"Dados recebidos: {dados}")
 
-    # Verificação do tipo dos dados antes de atualizar
-    if "id" in dados and not isinstance(dados['id'], int) or dados['id'] <= 0:
-        return jsonify({'erro': 'O id deve ser um número inteiro'}), 400
-
-    if "nome" in dados and not isinstance(dados["nome"], str):
-        return jsonify({'erro': 'O nome deve ser uma string'}), 400
-
-    if "professor" in dados and not isinstance(dados["professor"], str):
-        return jsonify({'erro': 'O professor deve ser uma string'}), 400
-
-    # Procura a turma pelo ID
-    for turma in dici.dici["turmas"]:
+    turma_encontrada = None
+    for turma in dici["turmas"]:
         if turma["id"] == idTurma:
-            # Atualiza apenas os campos fornecidos
-            if "nome" in dados:
-                turma["nome"] = dados["nome"]
-            
-            if "professor" in dados:
-                turma["professor"] = dados["professor"]
+            turma_encontrada = turma
+            print(f"Turma encontrada: {turma}")
+            break
 
+    if turma_encontrada is None:
+        return jsonify({"erro": "Turma não encontrada"}), 404
+
+    if not all(k in dados for k in ["id", "nome", "professor"]):
+        return jsonify({'erro': 'Campos id, nome e professor são obrigatórios'}), 400
+
+    if not isinstance(dados["id"], int) or not isinstance(dados["nome"], str) or not isinstance(dados["professor"], str):
+        return jsonify({'erro': 'Tipos de dados inválidos'}), 400
+
+    if 'nome' in dados:
+        turma_encontrada['nome'] = dados['nome']
+
+    print(f"Turma atualizada: {turma_encontrada}")
+    return jsonify({"mensagem": "Turma atualizada com sucesso", "turma": turma_encontrada}), 200
+
+
+@app.route('/turmas/<int:idTurma>', methods=['PATCH'])
+def atualizarParcialTurma(idTurma):
+    dados = request.json
+
+    turma_encontrada = False
+    for turma in dici["turmas"]:
+        if turma["id"] == idTurma:
+            for chave, valor in dados.items():
+                turma[chave] = valor
+            turma_encontrada = True
             return jsonify({"mensagem": "Turma atualizada com sucesso", "turma": turma}), 200
 
-    return jsonify({"erro": "Turma não encontrada"}), 404
+    if not turma_encontrada:
+        return jsonify({"erro": "Turma não encontrada"}), 404
 
 
 if __name__ == '__main__':
