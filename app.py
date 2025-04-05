@@ -1,6 +1,6 @@
 import os
 from config import app
-from routesTurma import turmas_blueprint
+from Turma.routesTurma import turmas_blueprint
 
 
 app.register_blueprint(turmas_blueprint)

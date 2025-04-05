@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from modelTurmas import TurmaNaoEncontrada,turma_por_id, getTurma, apaga_tudo, createTurma, deleteTurma, atualizarTurma, atualizarParcialTurma, dici
+from Turma.modelTurmas import TurmaNaoEncontrada,turma_por_id, getTurma, apaga_tudo, createTurma, deleteTurma, atualizarTurma, atualizarParcialTurma, dici
 
 turmas_blueprint = Blueprint('turmas', __name__)
 
@@ -59,8 +59,6 @@ def atualizar_turma(idTurma):
     except Exception as e:
         print(f"Erro inesperado: {e}")
         return jsonify({'erro': 'Erro interno do servidor'}), 500
-
-
 
 
 @turmas_blueprint.route('/turmas/<int:idTurma>', methods=['DELETE'])
