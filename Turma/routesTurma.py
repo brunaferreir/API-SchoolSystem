@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from Turma.modelTurmas import TurmaNaoEncontrada,turma_por_id, getTurma, apaga_tudo, createTurma, deleteTurma, atualizarTurma, atualizarParcialTurma, dici
+from turma.modelTurmas import TurmaNaoEncontrada,turma_por_id, getTurma, apaga_tudo, createTurma, deleteTurma, atualizarTurma, atualizarParcialTurma, dici
 
 turmas_blueprint = Blueprint('turmas', __name__)
 
