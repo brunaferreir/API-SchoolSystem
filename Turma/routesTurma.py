@@ -93,4 +93,3 @@ def reseta():
     return jsonify(resposta), 200
 
 
-
