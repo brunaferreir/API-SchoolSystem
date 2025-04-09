@@ -24,7 +24,6 @@ def apaga_tudo():
     return "message: Banco de dados resetado"
 
 
-
 def create_professores(id, nome, idade, materia, observacao):
     if not id or not nome or not idade or not materia or not observacao:
         return {'erro': 'Parâmetro obrigatório ausente'}
@@ -50,32 +49,20 @@ def create_professores(id, nome, idade, materia, observacao):
 
     return {'id': id,'nome': nome,'idade': idade,'materia': materia,'observacao': observacao}
 
- 
-def deleteProfessor(id_professor):
-    for professor in dici["professores"]:
-        if professor["id"] == id_professor:
-            dici["professores"].remove(professor)
-            return 'mensagem: Turma deletada com sucesso', professor
-    
-    raise ProfessorNaoEncontrado("professor nao encontrado")
 
-
-
-def atualizarProfessor(id_professor, nome=None, idade=None, materia=None, observacao=None):
-    print(f"AtualizarProfessor chamado com id: {id_professor}, nome: {nome}, idade: {idade}, materia: {materia}, observacao: {observacao}") # Debug
-    try:
+def atualizarProfessor(id_professor, nome=None, idade=None, materia=None, observacao=None, body_id=None):  
         professor_encontrado = None
         for professor in dici['professores']:
             if professor["id"] == id_professor:
                 professor_encontrado = professor
-                print(f"Professor encontrado: {professor}") # Debug
                 break
 
         if professor_encontrado is None:
             raise ProfessorNaoEncontrado("Professor não encontrado")
 
-        if nome is None and idade is None and materia is None and observacao is None:
-            return 'erro: Pelo menos um dos campos deve ser fornecido', None
+        if nome is None:
+            if body_id is None or body_id == id_professor:
+             return 'erro: professor sem nome', None
 
         if nome and not isinstance(nome, str):
             return 'erro: O nome deve ser uma string', None
@@ -89,28 +76,18 @@ def atualizarProfessor(id_professor, nome=None, idade=None, materia=None, observ
         if observacao and not isinstance(observacao, str):
             return 'erro:  a observacao deve ser uma string', None
 
-        if nome:
-            print(f"Atualizando nome para: {nome}") # Debug
+        if nome is not None:
             professor_encontrado['nome'] = nome
-            print(f"Nome atualizado para: {professor_encontrado['nome']}") # Debug
-        if idade:
-            print(f"Atualizando idade para: {idade}") # Debug
+        if idade is not None:
             professor_encontrado['idade'] = idade
-            print(f"Idade atualizada para: {professor_encontrado['idade']}") # Debug
-        if materia:
-            print(f"Atualizando materia para: {materia}") # Debug
+        if materia is not None:
             professor_encontrado['materia'] = materia
-            print(f"Materia atualizada para: {professor_encontrado['materia']}") # Debug
-        if observacao:
-            print(f"Atualizando observacao para: {observacao}") # Debug
+        if observacao is not None:
             professor_encontrado['observacao'] = observacao
-            print(f"Observacao atualizada para: {professor_encontrado['observacao']}") # Debug
-
-        print(f"Estado do banco de dados após a atualização: {dici['professores']}") # Debug
+        if body_id is not None:
+           professor_encontrado['id'] = body_id    
+     
         return "mensagem: Professor atualizado com sucesso", professor_encontrado
-    except Exception as e:
-        print(f"Erro inesperado em atualizarProfessor: {e}") # Debug
-        return None, None
 
 
 def atualizarParcialProfessor(id_professor, dados):
@@ -127,6 +104,14 @@ def atualizarParcialProfessor(id_professor, dados):
         if not professor_encontrado:
             return "erro: Professor não encontrado"
 
+
+def deleteProfessor(id_professor):
+    for professor in dici["professores"]:
+        if professor["id"] == id_professor:
+            dici["professores"].remove(professor)
+            return 'mensagem: Turma deletada com sucesso', professor
+    
+    raise ProfessorNaoEncontrado("Professor não encontrado")
 
 #print(professor_por_id(1))
 #print(get_professores())

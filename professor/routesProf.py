@@ -12,21 +12,12 @@ def listar_pofessores():
 @professores_blueprint.route('/professores/<int:id_professor>', methods=['GET'])
 def professor_por_id_rota(id_professor):
     try:
-
         professor = professor_por_id(id_professor)
         print(f"Rota GET professor: {professor}") #Debug
         return jsonify(professor), 200
     except ProfessorNaoEncontrado:
-        return jsonify({'erro': 'professor nao encontrado'}), 400
+        return jsonify({'erro': 'Professor não encontrado'}), 400
 
-# @professores_blueprint.route('/professores/<int:id_professor>', methods=['GET'])
-# def professor_por_id_rota(id_professor):
-#     try:
-#         professor = professor_por_id(id_professor)
-#         return jsonify(professor), 200  
-#     except ProfessorNaoEncontrado:
-#         return jsonify({'erro': 'professor nao encontrado'}), 400
-    
 
 @professores_blueprint.route('/professores', methods=['POST'])
 def criar_professor():
@@ -46,44 +37,59 @@ def criar_professor():
 
 
 
+@professores_blueprint.route('/reseta2', methods=['POST'])
+def reseta():
+    resposta = apaga_tudo()
+    return jsonify(resposta), 200
+
+
+
 @professores_blueprint.route('/professores/<int:id_professor>', methods=['PUT'])
-def atualizarProfessor(id_professor):
+def atualizar_Professor(id_professor):
     if not request.is_json:
         return jsonify({'erro': 'JSON inválido ou não fornecido'}), 400
 
     dados = request.json
+    nome = dados.get('nome')
+    body_id = dados.get('id')
+    idade = dados.get('idade')
+    materia = dados.get('materia')
+    observacao = dados.get('observacao')
 
-    if (not isinstance(dados.get('nome'), str) and dados.get('nome') is not None) or \
-       (not isinstance(dados.get('idade'), int) and dados.get('idade') is not None) or \
-       (not isinstance(dados.get('materia'), str) and dados.get('materia') is not None) or \
-       (not isinstance(dados.get('observacao'), str) and dados.get('observacao') is not None):
-        return jsonify({'erro': 'Tipos de dados inválidos'}), 400
+
+    if body_id is not None and not isinstance(body_id, int):
+        return jsonify({'erro': 'O id deve ser um número inteiro'}), 400
+
+    if 'nome' in dados and not isinstance(nome, str):
+        return jsonify({'erro': 'O nome deve ser uma string'}), 400
+    
+    if 'idade' in dados and not isinstance(idade, int):
+        return jsonify({'erro': 'A idade deve ser um numero'}), 400
+        
+    if 'materia' in dados and not isinstance(materia, str):
+        return jsonify({'erro': 'A materia deve ser uma string'}), 400
+    
+    if 'observacao' in dados and not isinstance(observacao, str):
+        return jsonify({'erro': 'A observacao deve ser uma string'}), 400
+    
+
+    if 'nome' not in dados:
+        return jsonify({'erro': 'professor sem nome'}), 400
 
     try:
-        resposta, professor_atualizado = atualizarProfessor(id_professor, dados.get('nome'), dados.get('idade'), dados.get('materia'), dados.get('observacao'))
-        if not professor_atualizado:
+        resposta, professor_atualizado = atualizarProfessor(id_professor, nome, body_id, idade, materia, observacao)
+        if "erro" in resposta:
+            erro_mensagem = resposta.split(': ')[1] if ': ' in resposta else resposta
+            return jsonify({'erro': erro_mensagem}), 400
+        elif not professor_atualizado:
             return '', 204
-
         return jsonify({"mensagem": resposta, "professor": professor_atualizado}), 200
 
-    except ProfessorNaoEncontrado as e:
-        print(f"ProfessorNaoEncontrado: {e}") #Debug
+    except ProfessorNaoEncontrado:
         return jsonify({'erro': 'Professor não encontrado'}), 404
     except Exception as e:
-        print(f"Erro inesperado: {e}") #Debug
         return jsonify({'erro': 'Erro interno do servidor'}), 500
 
-
-
-# #DELETE ID
-
-@professores_blueprint.route('/professores/<int:id_professor>', methods=['DELETE'])
-def delete_profesor(id_professor):
-    try:
-        resposta, professor_deletado = deleteProfessor(id_professor)
-        return jsonify({"mensagem": resposta})
-    except ProfessorNaoEncontrado:
-         return jsonify({'erro': 'professor nao encontrado'}), 400
 
 # #PATCH ID
 
@@ -101,9 +107,13 @@ def atualizar_parcial_professor(id_professor):
         return jsonify({'message': 'Professor não encontrado'}), 404
 
 
+# #DELETE ID
 
-@professores_blueprint.route('/reseta1', methods=['POST'])
-def reseta():
-    resposta = apaga_tudo()
-    return jsonify(resposta), 200
+@professores_blueprint.route('/professores/<int:id_professor>', methods=['DELETE'])
+def delete_profesor(id_professor):
+    try:
+        resposta, professor_deletado = deleteProfessor(id_professor)
+        return jsonify({"mensagem": resposta})
+    except ProfessorNaoEncontrado:
+         return jsonify({'erro': 'Professor não encontrado'}), 400
 
