@@ -59,14 +59,14 @@ def atualizarProfessor(id_professor, nome=None, idade=None, materia=None, observ
 
         if professor_encontrado is None:
             raise ProfessorNaoEncontrado("Professor não encontrado")
-
+        
         if nome is None:
             if body_id is None or body_id == id_professor:
-             return 'erro: professor sem nome', None
-
+             return 'erro: professor sem nome', None    
+        
         if nome and not isinstance(nome, str):
             return 'erro: O nome deve ser uma string', None
-
+    
         if idade and not isinstance(idade, int):
             return 'erro:  a idade deve ser um numero inteiro', None
 
@@ -75,9 +75,17 @@ def atualizarProfessor(id_professor, nome=None, idade=None, materia=None, observ
 
         if observacao and not isinstance(observacao, str):
             return 'erro:  a observacao deve ser uma string', None
+        
+        if body_id is not None and not isinstance(body_id, int):
+             return 'erro: O id deve ser um número inteiro', None
 
+        if body_id is not None and body_id != id_professor:
+            for professor in dici['professores']:
+               if professor['id'] == body_id:
+                 return 'erro: ID de professor já existe', None
+          
         if nome is not None:
-            professor_encontrado['nome'] = nome
+            professor_encontrado['nome'] = nome  
         if idade is not None:
             professor_encontrado['idade'] = idade
         if materia is not None:
@@ -85,8 +93,8 @@ def atualizarProfessor(id_professor, nome=None, idade=None, materia=None, observ
         if observacao is not None:
             professor_encontrado['observacao'] = observacao
         if body_id is not None:
-           professor_encontrado['id'] = body_id    
-     
+           professor_encontrado['id'] = body_id      
+        
         return "mensagem: Professor atualizado com sucesso", professor_encontrado
 
 

@@ -131,45 +131,45 @@ class TestStringMethods(unittest.TestCase):
         r_reset = requests.post('http://localhost:5002/reseta')
         self.assertEqual(r_reset.status_code,200)
 
-        #criei um aluno sem problemas
-        r = requests.post('http://localhost:5002/alunos',json={'id':7,'nome':'maximus'})
+        #criei um professor sem problemas
+        r = requests.post('http://localhost:5002/professores',json={'id':7,'nome':'maximus', 'idade': 34,'materia': 'POO','observacao': 'bom professor'})
         self.assertEqual(r.status_code,200)
 
         #mas tentei editar ele sem mandar o nome
-        r = requests.put('http://localhost:5002/alunos/7',json={'id':7})
+        r = requests.put('http://localhost:5002/professores/7',json={'id':7})
         self.assertEqual(r.status_code,400)
-        self.assertEqual(r.json()['erro'],'aluno sem nome')
+        self.assertEqual(r.json()['erro'],'professor sem nome')
 
     def test_112_post_com_tipos_invalidos(self):
         # Teste 1: "id" não é um número inteiro
-        r = requests.post('http://localhost:5002/alunos', json={'id': 'g', 'nome': 'felipe'})
+        r = requests.post('http://localhost:5002/professores', json={'id':"g", "nome": "bowser", "idade": 34,"materia": "POO","observacao": "bom professor"})
         self.assertEqual(r.status_code, 400)
-        self.assertEqual(r.json().get("erro"), "O id deve ser um número inteiro")
+        self.assertEqual(r.json().get("erro"), "O id deve ser um número inteiro positivo")
 
         # Teste 2: "nome" não é uma string
-        r = requests.post('http://localhost:5002/alunos', json={'id': 7,'nome': 987})
+        r = requests.post('http://localhost:5002/professores', json={"id": 7,"nome": 987, "idade": 34,"materia": "POO","observacao": "bom professor"})
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.json().get("erro"), "O nome deve ser uma string")
 
 
     def test_113_put_com_tipos_invalidos(self):
-        # Primeiro, cria um aluno para testar o PUT
-        r = requests.post('http://localhost:5002/alunos', json={'id': 1,'nome': 'felipe'})
+        # Primeiro, cria um professor para testar o PUT
+        r = requests.post('http://localhost:5002/professores', json={'id': 1,'nome': 'felipe', 'idade': 34,'materia': 'POO','observacao': 'bom professor'})
 
         # Teste 1: "id" não é um número inteiro
-        r = requests.put('http://localhost:5002/alunos/1', json={'id': 'g', 'nome': 'felipe'})
+        r = requests.put('http://localhost:5002/professores/1', json={'id': 'g','nome': 'felipe', 'idade': 34,'materia': 'POO','observacao': 'bom professor'})
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.json().get("erro"), "O id deve ser um número inteiro")
 
         # Teste 2: "nome" não é uma string
-        r = requests.put('http://localhost:5002/alunos/1', json={'id': 1, 'nome': 343})
+        r = requests.put('http://localhost:5002/professores/1', json={'id': 1, 'nome': 343, 'idade': 34,'materia': 'POO','observacao': 'bom professor'})
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.json().get("erro"), "O nome deve ser uma string")
         
         #Teste 3: "nome" não enviado
-        r = requests.put('http://localhost:5002/alunos/1', json={'id': 2})
+        r = requests.put('http://localhost:5002/professores/1', json={'id': 2})
         self.assertEqual(r.status_code, 400)
-        self.assertEqual(r.json().get('erro'), 'aluno sem nome')
+        self.assertEqual(r.json().get('erro'), 'professor sem nome')
 
     
 
@@ -177,24 +177,23 @@ class TestStringMethods(unittest.TestCase):
         r_reset = requests.post('http://localhost:5002/reseta')
         self.assertEqual(r_reset.status_code, 200)
 
-        # Cria dois alunos com IDs diferentes
-        requests.post('http://localhost:5002/alunos', json={'id': 1, 'nome': 'carlos'})
-        requests.post('http://localhost:5002/alunos', json={'id': 2, 'nome': ' joao'})
+        # Cria dois professores com IDs diferentes
+        requests.post('http://localhost:5002/professores', json={'id': 1, 'nome': 'carlos','idade': 34,'materia': 'POO','observacao': 'bom professor'})
+        requests.post('http://localhost:5002/professores', json={'id': 2, 'nome': ' joao', 'idade': 34,'materia': 'POO','observacao': 'bom professor'})
 
-        # Tenta alterar o ID do primeiro aluno para o ID do segundo aluno
-        r = requests.put('http://localhost:5002/alunos/1', json={'id': 2, 'nome': 'jose'})
+        # Tenta alterar o ID do primeiro professores para o ID do segundo professores
+        r = requests.put('http://localhost:5002/professores/1', json={'id': 2, 'nome': 'jose', 'idade': 34,'materia': 'POO','observacao': 'bom professor'})
         self.assertEqual(r.status_code, 400)  # Ou outro código de erro apropriado
-        self.assertEqual(r.json().get('erro'), 'ID de aluno já existe') # Ou outra mensagem de erro
-
-
+        self.assertEqual(r.json().get('erro'), 'ID de professor já existe') # Ou outra mensagem de erro
+        
     def test_115_delete_inexistente_retorna_erro(self):
         r_reset = requests.post('http://localhost:5002/reseta')
         self.assertEqual(r_reset.status_code, 200)
 
-        # Tenta deletar um aluno com ID inexistente
-        r_delete = requests.delete('http://localhost:5002/alunos/999')
+        # Tenta deletar um professores com ID inexistente
+        r_delete = requests.delete('http://localhost:5002/professores/999')
         self.assertIn(r_delete.status_code, [400, 404])
-        self.assertEqual(r_delete.json().get('erro'), 'Aluno não encontrado')  
+        self.assertEqual(r_delete.json().get('erro'), 'Professor não encontrado')  
 
 
 

@@ -51,10 +51,10 @@ def atualizar_Professor(id_professor):
 
     dados = request.json
     nome = dados.get('nome')
-    body_id = dados.get('id')
     idade = dados.get('idade')
     materia = dados.get('materia')
     observacao = dados.get('observacao')
+    body_id = dados.get('id')
 
 
     if body_id is not None and not isinstance(body_id, int):
@@ -62,6 +62,9 @@ def atualizar_Professor(id_professor):
 
     if 'nome' in dados and not isinstance(nome, str):
         return jsonify({'erro': 'O nome deve ser uma string'}), 400
+    
+    if 'nome' not in dados:
+        return jsonify({'erro': 'professor sem nome'}), 400
     
     if 'idade' in dados and not isinstance(idade, int):
         return jsonify({'erro': 'A idade deve ser um numero'}), 400
@@ -72,12 +75,8 @@ def atualizar_Professor(id_professor):
     if 'observacao' in dados and not isinstance(observacao, str):
         return jsonify({'erro': 'A observacao deve ser uma string'}), 400
     
-
-    if 'nome' not in dados:
-        return jsonify({'erro': 'professor sem nome'}), 400
-
     try:
-        resposta, professor_atualizado = atualizarProfessor(id_professor, nome, body_id, idade, materia, observacao)
+        resposta, professor_atualizado = atualizarProfessor(id_professor, nome, idade, materia, observacao, body_id)
         if "erro" in resposta:
             erro_mensagem = resposta.split(': ')[1] if ': ' in resposta else resposta
             return jsonify({'erro': erro_mensagem}), 400
