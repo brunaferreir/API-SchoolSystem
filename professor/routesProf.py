@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from professor.modelProf import ProfessorNaoEncontrado, professor_por_id, get_professores , apaga_tudo, create_professores, deleteProfessor, atualizarProfessor, atualizarParcialProfessor, dici
+from professor.modelProf import ProfessorNaoEncontrado, professor_por_id, get_professores , apaga_tudo, create_professores, deleteProfessor, atualizarProfessor, atualizarParcialProfessor
 
 professores_blueprint = Blueprint('professores', __name__)
 
@@ -32,8 +32,10 @@ def criar_professor():
     if "erro" in resposta:
         return jsonify(resposta), 400
 
-    dici['professores'].append(resposta) 
-    return jsonify(resposta, {'mensagem': 'Professor criado com sucesso'}), 200
+    return jsonify({
+        'professor': resposta,
+        'mensagem': 'Professor criada com sucesso'
+    }), 201
 
 
 

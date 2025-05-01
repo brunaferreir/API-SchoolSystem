@@ -1,5 +1,7 @@
-from flask import Blueprint, request, jsonify
-from aluno.modelAluno import AlunoNaoEncontrado, aluno_por_id, get_alunos, create_aluno, apaga_tudo, atualizarAluno, atualizarParcialAluno, deleteAluno,dici
+from flask import Blueprint, request, jsonify ,render_template,redirect, url_for
+from datetime import datetime
+from aluno.modelAluno import AlunoNaoEncontrado, aluno_por_id, get_alunos, create_aluno, apaga_tudo, atualizarAluno, atualizarParcialAluno, deleteAluno
+from config import db
 
 alunos_blueprint = Blueprint('alunos', __name__)
 
@@ -21,17 +23,20 @@ def criar_aluno():
     if not request.is_json:
         return jsonify({'erro': 'JSON inválido ou não fornecido'}), 400
 
-    dados = request.json
-    if 'id' not in dados or 'nome' not in dados:
-        return jsonify({'erro': 'aluno sem nome'}), 400
+    dados = request.get_json()
 
-    resposta = create_aluno(dados.get('id'), dados.get('nome'))
-    if "erro" in resposta:
-        return jsonify(resposta), 400
-
-    dici['alunos'].append(resposta)
-    return jsonify(resposta, {'mensagem': 'Aluno criado com sucesso'}), 200
-
+    novo_aluno, erro = create_aluno(dados)
+    if erro:
+        status_code = 400 if erro != "Turma não existe" else 404
+        return jsonify({'erro': erro}), status_code
+    
+    aluno_dict = novo_aluno.to_dict()
+    
+    return jsonify({
+        'aluno': aluno_dict,
+        'mensagem': 'Aluno criado com sucesso'
+    }), 201
+    
 
 
 @alunos_blueprint.route('/reseta1', methods=['POST'])
@@ -40,38 +45,23 @@ def reseta():
     return jsonify(resposta), 200
 
 
-
 @alunos_blueprint.route('/alunos/<int:id_aluno>', methods=['PUT'])
-def atualizar_aluno(id_aluno):
+def atualizar_aluno_rota(id_aluno):
     if not request.is_json:
         return jsonify({'erro': 'JSON inválido ou não fornecido'}), 400
 
-    dados = request.json
-    nome = dados.get('nome')
-    body_id = dados.get('id')
+    dados = request.get_json()
 
-    if body_id is not None and not isinstance(body_id, int):
-        return jsonify({'erro': 'O id deve ser um número inteiro'}), 400
+    if not dados:
+        return jsonify({'erro': 'Nenhum dado para atualizar fornecido'}), 400
+    
+    mensagem, aluno_atualizado = atualizarAluno(id_aluno, dados)
 
-    if 'nome' in dados and not isinstance(nome, str):
-        return jsonify({'erro': 'O nome deve ser uma string'}), 400
+    if "erro" in mensagem:
+        status_code = 404 if "Aluno não encontrado" in mensagem else 400
+        return jsonify({'erro': mensagem}), status_code
 
-    if 'nome' not in dados:
-        return jsonify({'erro': 'aluno sem nome'}), 400
-
-    try:
-        resposta, aluno_atualizado = atualizarAluno(id_aluno, nome, body_id)
-        if "erro" in resposta:
-            erro_mensagem = resposta.split(': ')[1] if ': ' in resposta else resposta
-            return jsonify({'erro': erro_mensagem}), 400
-        elif not aluno_atualizado:
-            return '', 204
-        return jsonify({"mensagem": resposta, "aluno": aluno_atualizado}), 200
-
-    except AlunoNaoEncontrado:
-        return jsonify({'erro': 'Aluno não encontrado'}), 404
-    except Exception as e:
-        return jsonify({'erro': 'Erro interno do servidor'}), 500
+    return jsonify({"mensagem": mensagem, "aluno": aluno_atualizado}), 200
 
 
 @alunos_blueprint.route('/alunos/<int:id_aluno>', methods=['PATCH'])
