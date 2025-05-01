@@ -1,4 +1,4 @@
-# API de Gestão Escolar
+# API de Gestão Escolar 📚
 
 ## Descrição
 
@@ -44,8 +44,8 @@ A API oferece as seguintes funcionalidades:
 1.  **Clone o repositório:**
 
     ```bash
-    git clone <URL do repositório>
-    cd <nome do repositório>
+      git clone [https://github.com/brunaferreir/API-SchoolSystem.git](https://github.com/brunaferreir/API-SchoolSystem.git)
+      cd API-SchoolSystem
     ```
 
 2.  **Crie um ambiente virtual (recomendado):**
@@ -121,7 +121,7 @@ A API oferece as seguintes funcionalidades:
 
 ## Estrutura do Projeto
 
-A estrutura do projeto é a seguinte:
+A estrutura do projeto é a seguinte:  📂
 
     ```
     ├── aluno/
@@ -173,10 +173,6 @@ A aplicação é configurada através da classe `Config` no arquivo `config.py`.
 
 Para executar os testes, utilize o `pytest`.
 
-## Contribuição
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e enviar pull requests.
-
 ## Licença
 
-\[Coloque aqui o tipo de licença\]
+[MIT License](https://opensource.org/licenses/MIT)
