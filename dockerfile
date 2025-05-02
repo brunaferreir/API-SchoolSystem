@@ -1,6 +1,6 @@
-FROM python:3.12.10-slim
+FROM python:3.12.4
 
-WORKDIR /api-schoolsystem
+WORKDIR /api-schoolsystem-entregavel3
 
 COPY requirements.txt .
 
@@ -10,6 +10,5 @@ COPY . .
 
 EXPOSE 5002
 
-CMD ["python", "/api-schoolsystem/app.py"]
-
+CMD ["python", "/api-schoolsystem-entregavel3/app.py"]
 
