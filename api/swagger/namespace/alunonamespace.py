@@ -54,12 +54,13 @@ class AlunoIdResource(Resource):
     @alunos_ns.expect(aluno_model)
     @alunos_ns.marshal_with(aluno_output_model, description='Aluno atualizado com sucesso')
     @alunos_ns.response(400, 'Erro de validação', model=error_model)
+    @alunos_ns.response(404, 'Aluno não encontrado', model=error_model)
+    @alunos_ns.response(500, 'Erro interno do servidor', model=error_model)
     def put(self, id_aluno):
         """Atualiza um aluno pelo ID"""
         data = alunos_ns.payload
-        atualizarParcialAluno(id_aluno, data)
-        aluno_atualizado = aluno_por_id(id_aluno)
-        return aluno_atualizado, 200
+        response, status_code = atualizarParcialAluno(id_aluno, data)
+        return response, status_code
 
     @alunos_ns.response(200, 'Aluno excluído com sucesso')
     def delete(self, id_aluno):

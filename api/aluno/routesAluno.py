@@ -50,18 +50,13 @@ def atualizar_aluno_rota(id_aluno):
     if not request.is_json:
         return jsonify({'erro': 'JSON inválido ou não fornecido'}), 400
 
-    dados = request.get_json()
+    dados = request.json
 
-    if not dados:
-        return jsonify({'erro': 'Nenhum dado para atualizar fornecido'}), 400
-    
-    mensagem, aluno_atualizado = atualizarAluno(id_aluno, dados)
-
-    if "erro" in mensagem:
-        status_code = 404 if "Aluno não encontrado" in mensagem else 400
-        return jsonify({'erro': mensagem}), status_code
-
-    return jsonify({"mensagem": mensagem, "aluno": aluno_atualizado}), 200
+    try:
+        resposta, aluno_atualizado = atualizarParcialAluno(id_aluno, dados)
+        return jsonify({"mensagem": resposta, "aluno": aluno_atualizado}), 200
+    except AlunoNaoEncontrado:
+        return jsonify({'message': 'Aluno não encontrado'}), 404
 
 
 @alunos_blueprint.route('/alunos/<int:id_aluno>', methods=['PATCH'])

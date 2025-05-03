@@ -146,7 +146,7 @@ def atualizarAluno(id_aluno, nome=None, body_id=None, data_nasc=None):
         db.session.rollback()
         return f"erro: {str(e)}", None
     
-def atualizarParcialAluno(id_aluno,dados):
+def atualizarParcialAluno(id_aluno, dados):
     try:
         aluno_encontrado = Aluno.query.get(id_aluno)
         if aluno_encontrado is None:
@@ -154,14 +154,44 @@ def atualizarParcialAluno(id_aluno,dados):
 
         for chave, valor in dados.items():
             if hasattr(aluno_encontrado, chave):
-                setattr(aluno_encontrado, chave, valor)
+                if chave == 'nome' and not isinstance(valor, str):
+                    return 'erro: O nome deve ser uma string', None
+                elif chave == 'data_nascimento':
+                    try:
+                        valor_date = datetime.strptime(valor, "%Y-%m-%d").date()
+                        setattr(aluno_encontrado, chave, valor_date)
+                        # Recalcular idade immediately after updating data_nascimento
+                        aluno_encontrado.idade = aluno_encontrado.calcular_idade()
+                    except ValueError:
+                        return 'erro: Formato de data de nascimento inválido (AAAA-MM-DD)', None
+                elif chave in ['nota_primeiro_semestre', 'nota_segundo_semestre']:
+                    try:
+                        valor = float(valor)
+                        if not 0 <= valor <= 10:
+                            return f'erro: {chave} deve estar entre 0 e 10', None
+                        setattr(aluno_encontrado, chave, valor)
+                    except ValueError:
+                        return f'erro: {chave} deve ser um número', None
+                elif chave == 'turma_id':
+                    try:
+                        valor = int(valor)
+                        if valor <= 0:
+                            return 'erro: O ID da turma deve ser um número inteiro positivo', None
+                        setattr(aluno_encontrado, chave, valor)
+                    except ValueError:
+                        return 'erro: O ID da turma deve ser um número inteiro', None
+                elif chave not in ['data_nascimento', 'nota_primeiro_semestre', 'nota_segundo_semestre', 'turma_id']:
+                    setattr(aluno_encontrado, chave, valor)
 
+        aluno_encontrado.media_final = (aluno_encontrado.nota_primeiro_semestre + aluno_encontrado.nota_segundo_semestre) / 2
         db.session.commit()
-        return "mensagem: aluno atualizada com sucesso", aluno_encontrado.to_dict()
+        return aluno_encontrado.to_dict(), 200
 
+    except AlunoNaoEncontrado as e:
+        return {"erro": str(e)}, 404
     except Exception as e:
         db.session.rollback()
-        return f"erro: {str(e)}", None
+        return f"erro: {str(e)}", 500
     
 def deleteAluno(id_aluno):
     aluno = Aluno.query.get(id_aluno)
