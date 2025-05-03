@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./api
+    container_name: dados-api
+    ports:
+      - "5002:5002" 
+    volumes:
+      - ./api:/api-schoolsystem
+    environment:
+      DATABASE_URL: sqlite:///./data.db
+      HOST: 0.0.0.0 # Importante para acessar de fora do container
+      PORT: 5002
+      DEBUG: "True" # Ou "False" dependendo do ambiente
+    depends_on: []
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: swagger-ui
+    ports:
+      - "8080:80" # Mapeia a porta 80 do container swagger-ui para a porta 8080 do host
+    environment:
+      URL: http://api:5002 # URL da sua API (interna ao Docker network)
+      CONFIG_URL: http://api:5002/swagger.json # URL da especificação OpenAPI
+    depends_on:
+      - api
+
+# Não precisamos mais da seção 'volumes' para o PostgreSQL
