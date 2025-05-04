@@ -69,10 +69,10 @@ A API oferece as seguintes funcionalidades:
         ```python
         class Config:
             DEBUG = True
-            SQLALCHEMY_DATABASE_URI = 'sqlite:///escola.db'  # Ou outro URI de banco de dados
+            SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db' 
             SQLALCHEMY_TRACK_MODIFICATIONS = False
             HOST = '0.0.0.0'
-            PORT = 5000
+            PORT = 5002
         ```
 
     * Se você estiver usando um banco de dados diferente, ajuste a string de conexão (`SQLALCHEMY_DATABASE_URI`) de acordo.
@@ -116,7 +116,7 @@ A API oferece as seguintes funcionalidades:
 
 3.  **Acesse a documentação:**
 
-    * A API estará disponível em `http://0.0.0.0:5000/api/` (ou na porta e host configurados).
+    * A API estará disponível em `http://0.0.0.0:5002/api/` (ou na porta e host configurados).
     * A documentação do Swagger estará disponível em `http://0.0.0.0:5000/api/docs`.
 
 ## Estrutura do Projeto
@@ -124,37 +124,41 @@ A API oferece as seguintes funcionalidades:
 A estrutura do projeto é a seguinte:  📂
 
     ```
-    ├── aluno/
-    │   ├── __init__.py
-    │   ├── modelAluno.py
-    │   └── routesAluno.py
-    ├── professor/
-    │   ├── __init__.py
-    │   ├── modelProf.py
-    │   └── routesProf.py
-    ├── turma/
-    │   ├── __init__.py
-    │   ├── modelTurmas.py
-    │   └── routesTurma.py
-    ├── swagger/
-    │   ├── __init__.py
-    │   ├── namespace/
-    │   │   ├── __init__.py
-    │   │   ├── alunonamespace.py
-    │   │   ├── profnamespace.py
-    │   │   └── turmanamespace.py
-    │   └── swagger_config.py
-    ├── config.py
-    ├── extensions.py
-    ├── app.py       # Ou __init__.py
-    ├── requirements.txt
+    ├── api/
+    |   ├── aluno/
+    |   │   ├── __init__.py
+    |   │   ├── modelAluno.py
+    |   │   └── routesAluno.py
+    |   ├── professor/
+    |   │   ├── __init__.py
+    |   │   ├── modelProf.py
+    |   │   └── routesProf.py
+    |   ├── turma/
+    |   │   ├── __init__.py
+    |   │   ├── modelTurmas.py
+    |   │   └── routesTurma.py
+    |   ├── swagger/
+    |   │   ├── __init__.py
+    |   │   ├── namespace/
+    |   │   │   ├── __init__.py
+    |   │   │   ├── alunonamespace.py
+    |   │   │   ├── profnamespace.py
+    |   │   │   └── turmanamespace.py
+    |   │   └── swagger_config.py
+    |   ├── config.py
+    |   ├── app.py       # Ou __init__.py
+    |   ├── dockerfile
+    |   ├── requirements.txt
+    |   └── test_.py 
+    ├── .gitignore
+    ├── docker-compose.yml
+    ├── LICENCE
     └── README.md
     ```
 
 * `aluno/`, `professor/`, `turma/`: Contêm os modelos e rotas para os respectivos recursos.
 * `swagger/`: Contém a configuração do Swagger.
 * `config.py`: Arquivo de configuração da aplicação.
-* `extensions.py`: Inicialização de extensões do Flask (como SQLAlchemy).
 * `app.py`: Ponto de entrada da aplicação Flask.
 * `requirements.txt`: Lista de dependências do projeto.
 * `README.md`: Este arquivo.
