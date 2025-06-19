@@ -21,7 +21,7 @@ services:
     ports:
       - "8080:80" # Mapeia a porta 80 do container swagger-ui para a porta 8080 do host
     environment:
-      URL: http://api:5002 # URL da sua API (interna ao Docker network)
+      URL: http://api:5002/docs # URL da sua API (interna ao Docker network)
       CONFIG_URL: http://api:5002/swagger.json # URL da especificação OpenAPI
     depends_on:
       - api
