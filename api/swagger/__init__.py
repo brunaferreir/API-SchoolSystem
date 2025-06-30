@@ -14,7 +14,7 @@ api = Api(
         "3.  **Turma:** CRUD (Create, Read, Update, Delete) de turmas, com associação de alunos e professores."
     )
     ,
-    doc="/docs",
+    doc="/",
     mask_swagger=False,  # Desativa o X-Fields no Swagger,
     prefix="/api"
 )
